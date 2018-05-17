@@ -19,6 +19,22 @@
 // Project's other libraries
 #include "program_options/log.h"
 
+void destroy_option(option_t* option) {
+    free(option);
+}
+
+void destroy_prog(prog_t* prog) {
+    for (int i = 0; i < prog->option_num; i++) {
+        destroy_option(prog->options[i]);
+    }
+    free(prog->options);
+    for (int i = 0; i < prog->subprog_num; i++) {
+        destroy_prog(prog->subprogs[i]);
+    }
+    free(prog->subprogs);
+    free(prog);
+}
+
 prog_t* init_prog(char const* name, char const* desc) {
     prog_t* prog = malloc(sizeof(prog_t));
     prog->name = name;
@@ -183,6 +199,9 @@ static void _assign_arg(void) {
                 }
             }
             break;
+        case VALUE_BOOL:
+            *((int*)(_current_opt->var_holder)) = 1;
+            break;
         default:
             fprintf(stderr, "Invalid\n");
             exit(1);
@@ -297,7 +316,7 @@ static void _check_option_dependency(prog_t* prog) {
 
 void parse_args(prog_t* prog, int argc, char const** argv) {
     if (argc < 2) {
-        _print_help(prog);
+        print_help(prog);
         exit(1);
     }
 
@@ -323,7 +342,7 @@ void parse_args(prog_t* prog, int argc, char const** argv) {
     }
 }
 
-static void _print_help(prog_t* prog) {
+void print_help(prog_t* prog) {
     fprintf(stderr, "Usage: ");
     if (prog->parent_prog == NULL) {
         fprintf(stderr, "%s [subprog] [option]\n\n", prog->name);
@@ -350,13 +369,13 @@ static void _print_help(prog_t* prog) {
     if (prog->subprog_num > 0) {
         fprintf(stderr, "Available subprograms:\n");
         for (int i = 0; i < prog->subprog_num; i++) {
-            fprintf(stderr, "\t%s\t%s\n", prog->subprogs[i]->name, prog->subprogs[i]->desc);
+            fprintf(stderr, "\t%-16s\t%s\n", prog->subprogs[i]->name, prog->subprogs[i]->desc);
         }
         fprintf(stderr, "\n");
     }
     fprintf(stderr, "Available options:\n");
     for (int i = 0; i < prog->option_num; i++) {
-        fprintf(stderr, "\t-%c, %s\t%s\n",
+        fprintf(stderr, "\t-%c, %-12s\t%s\n",
                 prog->options[i]->short_name, prog->options[i]->long_name, prog->options[i]->desc);
     }
 }

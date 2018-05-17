@@ -86,6 +86,6 @@ static void _check_option_necessity(prog_t* prog);
 static void _check_option_dependency(prog_t* prog);
 void parse_args(prog_t* prog, int argc, char const** argv);
 
-static void _print_help(prog_t* prog);
+void print_help(prog_t* prog);
 
 #endif  // PROGRAM_OPTIONS_PROGRAM_OPTIONS_H_
