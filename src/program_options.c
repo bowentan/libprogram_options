@@ -200,7 +200,7 @@ static void _assign_arg(void) {
             }
             break;
         case VALUE_BOOL:
-            *((int*)(_current_opt->var_holder)) = 1;
+            *((int*)(_current_opt->var_holder)) ^= 1;
             break;
         default:
             fprintf(stderr, "Invalid\n");
@@ -395,7 +395,7 @@ void print_help(prog_t* prog) {
             } else {
                 default_str[0] = '\0';
             }
-            fprintf(stderr, "\t-%c, %-16s %-16s\t%s\n",
+            fprintf(stderr, "\t-%c, %-20s %-16s\t%s\n",
                     prog->options[i]->short_name, prog->options[i]->long_name,
                     default_str, prog->options[i]->desc);
         }
