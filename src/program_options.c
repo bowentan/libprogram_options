@@ -373,9 +373,31 @@ void print_help(prog_t* prog) {
         }
         fprintf(stderr, "\n");
     }
-    fprintf(stderr, "Available options:\n");
-    for (int i = 0; i < prog->option_num; i++) {
-        fprintf(stderr, "\t-%c, %-12s\t%s\n",
-                prog->options[i]->short_name, prog->options[i]->long_name, prog->options[i]->desc);
+    if (prog->option_num > 0) {
+        fprintf(stderr, "Available options:\n");
+        char default_str[21];
+        for (int i = 0; i < prog->option_num; i++) {
+            if ((prog->options[i]->opt_type & OPTION_HAS_DEFAULT) != 0) {
+                switch (prog->options[i]->value_type) {
+                    case VALUE_INT:
+                        sprintf(default_str, "[%d]",
+                                *(int*)(prog->options[i]->var_holder));
+                        break;
+                    case VALUE_FLOAT:
+                        sprintf(default_str, "[%f]",
+                                *(double*)(prog->options[i]->var_holder));
+                        break;
+                    case VALUE_STRING:
+                        sprintf(default_str, "[%s]",
+                                *(char**)(prog->options[i]->var_holder));
+                        break;
+                }
+            } else {
+                default_str[0] = '\0';
+            }
+            fprintf(stderr, "\t-%c, %-16s %-16s\t%s\n",
+                    prog->options[i]->short_name, prog->options[i]->long_name,
+                    default_str, prog->options[i]->desc);
+        }
     }
 }

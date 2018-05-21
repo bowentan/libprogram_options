@@ -18,10 +18,11 @@
 
 // Option/Argument type
 #define OPTION_UNNECESSARY 0
-#define OPTION_NECESSARY (1 << 3)  // Option MUST be given
-#define OPTION_HAS_ARG (1 << 2)  // Option CAN have argument but NOT necessary
-#define OPTION_REQUIRE_ARG (1 << 1)  //Option MUST have argument
-#define OPTION_MULTIPLE_ARG 1  // Opiont CAN have multiple arguments
+#define OPTION_NECESSARY (1 << 4)  // Option MUST be given
+#define OPTION_HAS_ARG (1 << 3)  // Option CAN have argument but NOT necessary
+#define OPTION_REQUIRE_ARG (1 << 2)  //Option MUST have argument
+#define OPTION_MULTIPLE_ARG (1 << 1)  // Opiont CAN have multiple arguments
+#define OPTION_HAS_DEFAULT 1
 
 #define OPTION_ALONG 0  // Program CAN execute, given only option
 #define OPTION_NOT_ALONG 1  // Program CANNOT execute, given only option
@@ -64,8 +65,24 @@ void destroy_prog(prog_t* prog);
 
 // Create program with/without subprograms
 prog_t* init_prog(char const* name, char const* desc);
-void add_options(prog_t* prog, int option_num, ...);
 void add_subprogs(prog_t* prog, int subprog_num, ...);
+// Add options to prog
+// Param:
+//   prog       : program holding options
+//   option_num : total option number
+//   ...        : option specifications
+//
+// For option specifications, each option requires the following arguments
+// short_name        : char
+// full_name         : string
+// description       : string
+// along_type        : int, OPTION_ALONG or OPTION_NOT_ALONG
+// option_type       : int, combinations of option types above, with '+' sign
+// depend_options    : string, ':' separated short names of other options
+// var_length_holder : int*, the length of argument values, for array of arguments
+// var_holder        : void*, pointer to the variable
+// has_default       : int
+void add_options(prog_t* prog, int option_num, ...);
 
 /* Parsing */
 static int _arg_idx;
