@@ -395,8 +395,8 @@ void print_help(prog_t* prog) {
             } else {
                 default_str[0] = '\0';
             }
-            fprintf(stderr, "\t-%c, %-20s %-16s\t%s\n",
-                    prog->options[i]->short_name, prog->options[i]->long_name,
+            fprintf(stderr, "\t-%c     %-16s\t%s\n",
+                    prog->options[i]->short_name,
                     default_str, prog->options[i]->desc);
         }
     }
