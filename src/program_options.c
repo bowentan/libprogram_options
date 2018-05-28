@@ -395,9 +395,18 @@ void print_help(prog_t* prog) {
             } else {
                 default_str[0] = '\0';
             }
-            fprintf(stderr, "\t-%c     %-16s\t%s\n",
-                    prog->options[i]->short_name,
-                    default_str, prog->options[i]->desc);
+            char desc_tmp[strlen(prog->options[i]->desc) + 1];
+            strcpy(desc_tmp, prog->options[i]->desc);
+            char* token = strtok(desc_tmp, "\n");
+            fprintf(stderr, "\t-%c%-4s%-16s\t%s\n",
+                    prog->options[i]->short_name, "",
+                    default_str, token);
+            token = strtok(NULL, "\n");
+            while (token != NULL) {
+                fprintf(stderr, "\t%-20s\t%s\n",
+                        "", token);
+                token = strtok(NULL, "\n");
+            }
         }
     }
 }
