@@ -85,22 +85,6 @@ void add_subprogs(prog_t *prog, int subprog_num, ...);
 void add_options(prog_t *prog, int option_num, ...);
 
 /* Parsing */
-static int _arg_idx;
-static char _opt;
-static int _arg_num;
-static char **_arg;
-static option_t *_current_opt;
-static void _init_opt_parse(void);
-static void _clear_arg(void);
-static void _check_opt_type(void);
-static void _check_value_type(void);
-static void _assign_arg(void);
-static int _find_option(prog_t *prog);
-static int _find_subprog(prog_t *prog, char const *subprog_names);
-static int _get_option(prog_t *prog, int argc, char const **argv);
-static int _is_along_option_given(prog_t *prog);
-static void _check_option_necessity(prog_t *prog);
-static void _check_option_dependency(prog_t *prog);
 void parse_args(prog_t *prog, int argc, char const **argv);
 
 void print_help(prog_t *prog);

@@ -19,80 +19,12 @@
 // Project's other libraries
 #include "program_options/log.h"
 
-void destroy_option(option_t *option) {
-    free(option);
-}
-
-void destroy_prog(prog_t *prog) {
-    for (int i = 0; i < prog->option_num; i++) {
-        destroy_option(prog->options[i]);
-    }
-    free(prog->options);
-    for (int i = 0; i < prog->subprog_num; i++) {
-        destroy_prog(prog->subprogs[i]);
-    }
-    free(prog->subprogs);
-    free(prog);
-}
-
-prog_t *init_prog(char const *name, char const *desc) {
-    prog_t *prog = malloc(sizeof(prog_t));
-    prog->name = name;
-    prog->desc = desc;
-    prog->options = NULL;
-    prog->subprog_num = 0;
-    prog->subprogs = NULL;
-    prog->parent_prog = NULL;
-    prog->main_func = NULL;
-    return prog;
-}
-
-void add_options(prog_t *prog, int option_num, ...) {
-    va_list valist;
-    va_start(valist, option_num);
-    
-    prog->option_num = option_num;
-    prog->options = malloc(option_num * sizeof(option_t *));
-    
-    for (int i = 0; i < option_num; i++) {
-        prog->options[i] = malloc(sizeof(option_t));
-        prog->options[i]->short_name = (char)va_arg(valist, int);
-        prog->options[i]->long_name = va_arg(valist, char const *);
-        prog->options[i]->desc = va_arg(valist, char const *);
-        prog->options[i]->along_type = va_arg(valist, int);
-        prog->options[i]->opt_type = va_arg(valist, int);
-        prog->options[i]->value_type = va_arg(valist, int);
-        prog->options[i]->depend_options = va_arg(valist, char const *);
-        prog->options[i]->var_length_holder = va_arg(valist, int *);
-        prog->options[i]->var_holder = va_arg(valist, void *);
-        prog->options[i]->given = 0;
-    }
-}
-
-void add_subprogs(prog_t *prog, int subprog_num, ...) {
-    va_list valist;
-    va_start(valist, subprog_num);
-
-    prog->subprogs = malloc(prog->subprog_num * sizeof(prog_t *));
-    for (int i = 0; i < subprog_num; i++) {
-        char const *subprog_name = va_arg(valist, char const *);
-        char const *subprog_desc = va_arg(valist, char const *);
-        prog_t *subprog = init_prog(subprog_name, subprog_desc);
-        prog->subprog_num++;
-        prog->subprogs = realloc(prog->subprogs, prog->subprog_num * sizeof(prog_t *));
-        prog->subprogs[prog->subprog_num - 1] = subprog;
-
-        subprog->parent_prog = prog;
-        subprog->main_func = va_arg(valist, void (*)(prog_t *, int, char const **));
-    }
-}
-
-static void _init_opt_parse(void) {
-    _arg_idx = 1;
-    _opt = '-';
-    _clear_arg();
-    _current_opt = NULL;
-}
+/* static declaration */
+static int _arg_idx;
+static char _opt;
+static int _arg_num;
+static char **_arg;
+static option_t *_current_opt;
 
 static void _clear_arg(void) {
     for (int i = 0; i < _arg_num; i++) {
@@ -102,6 +34,13 @@ static void _clear_arg(void) {
     free(_arg);
     _arg_num = 0;
     _arg = NULL;
+}
+
+static void _init_opt_parse(void) {
+    _arg_idx = 1;
+    _opt = '-';
+    _clear_arg();
+    _current_opt = NULL;
 }
 
 static void _check_opt_type(void) {
@@ -311,6 +250,74 @@ static void _check_option_dependency(prog_t *prog) {
     }
     if (dependency_incomplete_count > 0) {
         exit(1);
+    }
+}
+
+void destroy_option(option_t *option) {
+    free(option);
+}
+
+void destroy_prog(prog_t *prog) {
+    for (int i = 0; i < prog->option_num; i++) {
+        destroy_option(prog->options[i]);
+    }
+    free(prog->options);
+    for (int i = 0; i < prog->subprog_num; i++) {
+        destroy_prog(prog->subprogs[i]);
+    }
+    free(prog->subprogs);
+    free(prog);
+}
+
+prog_t *init_prog(char const *name, char const *desc) {
+    prog_t *prog = malloc(sizeof(prog_t));
+    prog->name = name;
+    prog->desc = desc;
+    prog->options = NULL;
+    prog->subprog_num = 0;
+    prog->subprogs = NULL;
+    prog->parent_prog = NULL;
+    prog->main_func = NULL;
+    return prog;
+}
+
+void add_options(prog_t *prog, int option_num, ...) {
+    va_list valist;
+    va_start(valist, option_num);
+    
+    prog->option_num = option_num;
+    prog->options = malloc(option_num * sizeof(option_t *));
+    
+    for (int i = 0; i < option_num; i++) {
+        prog->options[i] = malloc(sizeof(option_t));
+        prog->options[i]->short_name = (char)va_arg(valist, int);
+        prog->options[i]->long_name = va_arg(valist, char const *);
+        prog->options[i]->desc = va_arg(valist, char const *);
+        prog->options[i]->along_type = va_arg(valist, int);
+        prog->options[i]->opt_type = va_arg(valist, int);
+        prog->options[i]->value_type = va_arg(valist, int);
+        prog->options[i]->depend_options = va_arg(valist, char const *);
+        prog->options[i]->var_length_holder = va_arg(valist, int *);
+        prog->options[i]->var_holder = va_arg(valist, void *);
+        prog->options[i]->given = 0;
+    }
+}
+
+void add_subprogs(prog_t *prog, int subprog_num, ...) {
+    va_list valist;
+    va_start(valist, subprog_num);
+
+    prog->subprogs = malloc(prog->subprog_num * sizeof(prog_t *));
+    for (int i = 0; i < subprog_num; i++) {
+        char const *subprog_name = va_arg(valist, char const *);
+        char const *subprog_desc = va_arg(valist, char const *);
+        prog_t *subprog = init_prog(subprog_name, subprog_desc);
+        prog->subprog_num++;
+        prog->subprogs = realloc(prog->subprogs, prog->subprog_num * sizeof(prog_t *));
+        prog->subprogs[prog->subprog_num - 1] = subprog;
+
+        subprog->parent_prog = prog;
+        subprog->main_func = va_arg(valist, void (*)(prog_t *, int, char const **));
     }
 }
 
