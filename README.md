@@ -45,7 +45,7 @@ If you find any bugs or you have some ideas about the library functionality, ple
 
 ## Authors
 
-* **Bowen Tan** - *Initial work* - [GitHub](https://github.com/bowentan).
+* **Bowen Tan** - *Initial work* - [GitHub](https://github.com/bowentan), Eamil: notebowentan@gmail.com
 
 ## License
 
